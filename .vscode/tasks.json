@@ -1,0 +1,44 @@
+
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "type": "shell",
+        "label": "MPI compile and run active file (BASIC)",
+        "command": "mpicc -g ${fileDirname}/${fileBasename} -o Compiled/${fileBasenameNoExtension}.out && mpirun --allow-run-as-root --mca btl_vader_single_copy_mechanism none -np ${input:np} Compiled/${fileBasenameNoExtension}.out",
+        "presentation": {
+          "reveal": "always"
+        },
+        "problemMatcher": [
+          "$eslint-compact"
+        ],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      },
+      {
+        "type": "shell",
+        "label": "MPI compile and run active file (LIBRARY)",
+        "command": "mpicc -c Library/mycollective.c -o Compiled/mycollective.o && mpicc -c Library/${fileBasenameNoExtension}.c -o Compiled/${fileBasenameNoExtension}.o && mpicc -o Compiled/${fileBasenameNoExtension}.out Compiled/mycollective.o Compiled/${fileBasenameNoExtension}.o && mpirun --allow-run-as-root --oversubscribe -np ${input:np} Compiled/${fileBasenameNoExtension}.out",
+        "presentation": {
+            "reveal": "always"
+        },
+        "problemMatcher": [
+            "$eslint-compact"
+        ],
+        "group": {
+            "kind": "build",
+            "isDefault": true
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "id": "np",
+        "description": "Number of processes:",
+        "default": "4",
+        "type": "promptString"
+      }
+    ]
+  }
