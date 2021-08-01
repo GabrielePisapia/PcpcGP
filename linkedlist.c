@@ -1,31 +1,13 @@
+#include "linkedlist.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-
-struct WordCounter *pStart = NULL; 
-
-int is_separator(char ch)
-{
-  /* Separators are space, comma, colon, semicolon, double quote, question mark, exclamation, and period */
-  static char separators[] = { ' ' , ',',':' , '\"', '?' , '!' , '.'};
-  int i = 0;
-
-  for(i = 0 ; i<sizeof separators ; i++)
-  {
-    if(ch == separators[i])
-      return TRUE;
-  }
-
-  return FALSE;
-}
+struct WordCounter *pStart = NULL;   
 
 void show(struct WordCounter *pWordcounter)
 {
   /* output the word left-justified in a fixed field width followed by the count */
   printf("\n%-30s   %5d", pWordcounter->word,pWordcounter->word_count);
 }
+
 
 
 void addWord(char *word)

@@ -47,8 +47,8 @@ int main(void)
             printf("%s\n", dir->d_name);
             fflush(stdout);
             
-                strcpy(path,"myfolder");
-                strcat(path,"/");
+                strcpy(path,"myfolder/");
+                //strcat(path,"/");
                 strcat(path,dir->d_name);
                 fp = fopen(path, "r");
 
