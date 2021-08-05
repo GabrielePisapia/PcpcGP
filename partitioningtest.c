@@ -19,6 +19,7 @@ int is_separator(char ch);                          /* Tests for a separator cha
 void show(struct WordCounter *pWordcounter,int rank);        /* Outputs a word and its count of occurrences */
 struct WordCounter* createWordCounter(char *word);  /* Creates a new WordCounter structure */
 int number_non_duplicate_words();                    /*Count how much word there are in the struct (non duplicate words)*/
+int giveCounter();
 
 /* Global variables */
 struct WordCounter *pStart = NULL;                 /* Pointer to first word counter in the list */
@@ -31,10 +32,15 @@ void show(struct WordCounter *pWordcounter,int rank)
   printf("\n [RANK %d]: %s   %d",rank, pWordcounter->word,pWordcounter->word_count);
 }
 
+int giveCounter (struct WordCounter *pCounter){
+    int tempcount = pCounter -> word_count;
+   return tempcount;
+    
+}
+
 int number_non_duplicate_words(){ 
 
     struct WordCounter *pCounter = NULL;
-    struct WordCounter *pLast = NULL;
     pCounter = pStart;
     int returnvalue = 0;
     while(pCounter != NULL){
@@ -42,6 +48,31 @@ int number_non_duplicate_words(){
         pCounter = pCounter->pNext;
     }
     return returnvalue;
+}
+
+void addOrIncrement(char *word, int her_count){ // Merge words, increment if exist or add to data struct if not
+
+  struct WordCounter *pCounter = NULL;
+  struct WordCounter *pLast = NULL;
+ 
+
+   pCounter = pStart;
+   while(pCounter != NULL){
+       if(strcmp(word, pCounter-> word) == 0){ 
+           int old_count = pCounter -> word_count;
+           printf("XXXX OLD COUNT: %d \n",old_count);
+           int new_count = old_count+her_count;
+           printf("YYYYY NEW COUNT IS: %d \n",new_count);
+           pCounter -> word_count = new_count;
+           printf("Updated word into master new counter of the string %s is %d \n",pCounter ->word, pCounter ->word_count);
+           return;
+       }
+        
+        pLast = pCounter;            /* Save address of last in case we need it */
+        pCounter = pCounter->pNext;
+   }
+   printf("qui ci arrivo?");
+   pLast->pNext = createWordCounter(word);
 }
 
 void addWord(char *word)
@@ -100,6 +131,8 @@ int main (int argc,char *argv[]){
     struct WordCounter *pCounter = NULL;
     char *result_word;
     char *exactly_word;
+    int *counters;
+    int *total_counters;
 
     MPI_Status status;
     MPI_Init(&argc,&argv);
@@ -108,6 +141,7 @@ int main (int argc,char *argv[]){
     MPI_Comm_rank (MPI_COMM_WORLD,&rank);
     int recv[world_size];
     int disp[world_size];
+    int num_disp[world_size];
     int recvs_counts[world_size];
     
 
@@ -314,8 +348,10 @@ int main (int argc,char *argv[]){
                 upperbound = partition * (rank+1);
             }
            
+           
            printf("[RANK %d] Ho ricevuto una partition di: %d e un resto di: %d \n",rank,partition,remainder);
            printf("[RANK %d] Lowrbound is: %d \n",rank,lowerbound);
+           int partition_secure = partition;
            fflush(stdout);
            
             for(int tmp=0;tmp<sizeof(how_much_word)/sizeof(how_much_word[0]);tmp++){
@@ -395,7 +431,8 @@ int main (int argc,char *argv[]){
             }
             printf("%c ",temp_to_send[w]);
         }*/
-        exactly_word = malloc(sizeof(char)*num_car);   //ok
+        exactly_word = malloc(sizeof(char)*num_car);
+          
         printf("NUM CAR %d \n", num_car);             //ok
         
         for(int ex = 0; ex<num_car; ex++){
@@ -417,9 +454,20 @@ int main (int argc,char *argv[]){
        
       
         readed_nd_word = number_non_duplicate_words();
-        printf("$$[RANK %d] Ha un numero di parole non duplicate pari a: %d",rank,readed_nd_word);
+        counters = malloc(sizeof(char)*readed_nd_word);
+
+
+        printf("[RANK %d] Ha un numero di parole non duplicate pari a: %d \n",rank,readed_nd_word);
         fflush(stdout);
         
+        pCounter = pStart;
+        for(int x=0; x<readed_nd_word;x++){
+            counters[x] = giveCounter(pCounter);
+            pCounter = pCounter -> pNext;
+            printf("Counters di %d è uguale a %d \n",x,counters[x]);
+        }
+
+
         pCounter = pStart;
         
         while(pCounter != NULL){
@@ -433,21 +481,31 @@ int main (int argc,char *argv[]){
              
     } /*Fine codice slave*/
 
-    MPI_Allgather(&num_car,1,MPI_INT,&recv,1,MPI_INT,MPI_COMM_WORLD);
-    MPI_Gather(&readed_nd_word,1,MPI_INT,&recvs_counts,1,MPI_INT,0,MPI_COMM_WORLD);
+    MPI_Allgather(&num_car,1,MPI_INT,&recv,1,MPI_INT,MPI_COMM_WORLD);  // numero di caratteri letti
+    MPI_Allgather(&readed_nd_word,1,MPI_INT,&recvs_counts,1,MPI_INT,MPI_COMM_WORLD);  // numero di conteggi delle parole (non duplicate)
     
 
     if (rank == 0){
         for (int j = 0; j< world_size;j++){
-            printf("[RANK %d] ricevuto %d caratteri totali \n",rank,recv[j]);             //ok 0 e 9
+            printf("[RANK %d] ricevuto %d caratteri totali \n",rank,recv[j]); 
+            printf("Ho ricevuto anche un numero di conteggi parole non duplicate pari a : %d \n",recvs_counts[j]);           
         }
-        printf("IL MASTER HA RICEVUTO DALLA GATHER IL VALORE DELLE PAROLE CONTATE DA 1 SENZA DUPLICATI: %d",recvs_counts[1]);
+        printf("IL MASTER HA RICEVUTO DALLA GATHER IL VALORE DELLE PAROLE CONTATE DA 1 SENZA DUPLICATI: %d \n",recvs_counts[1]);
     }   
     
     int sec_size [world_size];
+    int sec_count_size [world_size];
+    int num_count = 0;
     int num = 0;
 
-
+    /* Preparing parameters for gatherv */
+    for (int y = 0; y<world_size;y++){
+        
+        sec_count_size[y] = recvs_counts[y];
+        num_disp[y] = y == 0 ? 0: num_disp[y-1]+sec_count_size[y-1];
+        num_count += sec_count_size[y];
+        }
+        
     for (int k = 0; k<world_size;k++){
         
         sec_size[k] = recv[k];
@@ -457,7 +515,7 @@ int main (int argc,char *argv[]){
         
 
     for (int x= 0 ; x < world_size; x++){
-        printf("[Rank %d] DISPLACMENT: %d E SEC SIZE: %d \n",rank,disp[x],sec_size[x]);
+        printf("[Rank %d] DISPLACMENT: %d E SEC SIZE: %d \n",rank,num_disp[x],sec_count_size[x]);
     }
     
 
@@ -469,29 +527,62 @@ int main (int argc,char *argv[]){
            
             printf("DOPO LA MALLOC \n");
             exactly_word = malloc(sizeof(char)*0);
-
             printf("numcar di rank 0  %d", num_car);
-            
-            
+            counters = malloc(sizeof(int)*0);
 
+            total_counters = malloc(sizeof(int)*num_count);
+            
             
     }
     
     
-    MPI_Gatherv(exactly_word,num_car,MPI_CHAR,result_word,sec_size,disp,MPI_CHAR,0,MPI_COMM_WORLD);  
+    MPI_Gatherv(exactly_word,num_car,MPI_CHAR,result_word,sec_size,disp,MPI_CHAR,0,MPI_COMM_WORLD);
+    MPI_Gatherv(counters,readed_nd_word,MPI_INT,total_counters,sec_count_size,num_disp,MPI_INT,0,MPI_COMM_WORLD);
     
     
     if(rank==0){
+        pCounter = pStart;
         char array[num];
+        char tmp_word[100];
+        int index_of_word_count = 0;
+        int count_parole = 0;
         memcpy(array,result_word,num);
         printf("@@@@ %s ", result_word);
+        printf("Posizione 1 di array è %c \n",array[1]);
         for ( int n = 0 ; n < num; n++){
             printf("Carattere %c ",array[n]);
+
             if (array[n] == 0){
-                printf("trovato null");
+                printf("trovato null ");
+                printf("PAROLA: %s \n",tmp_word);
+                printf("VALORE DA INCREMENTARE: %d \n", total_counters[count_parole]);
+                addOrIncrement(tmp_word,total_counters[count_parole]);
+                count_parole++;
+                memset(tmp_word,0,100);
+                index_of_word_count = 0;
+            }else{
+                tmp_word[index_of_word_count] = array[n];
+                index_of_word_count++;
             }
         }
+        printf("-------DOPO IL PRIMO FOR \n");
+        printf("\n \n \n \n");
+        printf("--- NUM COUNT PARI A: %d ",num_count);
+
+        for ( int m = 0; m<num_count;m++){
+            printf("pos: %d has got this count: %d \n",m,total_counters[m]);
+        }
+
         
+        printf("//////////////////////////////////// \n");
+        printf("//////////////////////////////////// \n");
+        printf("//////////////////////////////////// \n");
+        pCounter = pStart;
+        while(pCounter != NULL){
+            show(pCounter,rank);
+            pCounter = pCounter -> pNext;
+        }
+        printf("\n \n \n");
     }
     
   
