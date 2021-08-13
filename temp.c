@@ -152,8 +152,7 @@ int main(int argc, char **argv){
   
 }
 
-/*
+
     char *wordy;
     pCounter = pStart;
     wordy = giveWord(pCounter);
-    */
