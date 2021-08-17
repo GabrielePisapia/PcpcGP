@@ -82,7 +82,6 @@ void addOrIncrement(char *word, int her_count){ // Merge words, increment if exi
            int old_count = pCounter -> word_count;
            int new_count = old_count+her_count;
            pCounter -> word_count = new_count;
-           printf("Updated word into master new counter of the string %s is %d \n",pCounter ->word, pCounter ->word_count);
            return;
        }
         
@@ -326,7 +325,7 @@ int main (int argc,char *argv[]){
                         } 
                 }
 
-              printf("[MASTER] Local partition: %d \n",local_partition);
+              
               fclose(fp);
               memset(path_to_read,0,800);
  
@@ -386,7 +385,6 @@ int main (int argc,char *argv[]){
            
             for(int tmp=0;tmp<sizeof(how_much_word)/sizeof(how_much_word[0]);tmp++){
                 cum_sum += how_much_word[tmp];
-                printf("[RANK %d] Cumulative sum: %d \n",rank,cum_sum);
                 fflush(stdout);
 
                 if((cum_sum > lowerbound) &&( partition > 0 )){
@@ -428,7 +426,6 @@ int main (int argc,char *argv[]){
                                     partition--;
                                     tmpword[index_of_tmpword] ='\0';
                                     index_of_tmpword++;
-                                    printf("[Rank %d] STRINGA DA AGGIUNGERE %s \n",rank,tmpword);
                                     addWord(tmpword);
                                     memset(tmpword,0,500);
                                     index_of_tmpword = 0;
@@ -476,7 +473,7 @@ int main (int argc,char *argv[]){
         for(int x=0; x<readed_nd_word;x++){
             counters[x] = giveCounter(pCounter);
             strcpy(wordy,giveWord(pCounter));
-            printf("WORDY: %s \n",wordy);
+            //printf("WORDY: %s \n",wordy);
            
             while(wordy[indice]!= 0){
                 exactly_word[indice_parole] = wordy[indice];
@@ -490,14 +487,10 @@ int main (int argc,char *argv[]){
             indice_parole++;
             
             
-            printf("[RANK %d] Counters di %d è uguale a %d \n",rank,x,counters[x]);
+           // printf("[RANK %d] Counters di %d è uguale a %d \n",rank,x,counters[x]);
         }
 
-        for(int w = 0; w <num_car; w++){
-            printf(" %02x", exactly_word[w]); 
-        }
-
-        printf("Carattere: %c \n",exactly_word[0]);
+        //printf("Carattere: %c \n",exactly_word[0]);
 
         pCounter = pStart;
         
@@ -555,11 +548,11 @@ int main (int argc,char *argv[]){
         num += sec_size[k];
         }
         
-
+    /*
     for (int x= 0 ; x < world_size; x++){
         printf("[Rank %d] DISPLACMENT: %d E SEC SIZE: %d E NUM COUNT: %d \n",rank,num_disp[x],sec_count_size[x],num_count);
         printf("[Rank %d] Norm DISPLACMENT: %d E SEC SIZE: %d \n",rank,disp[x],sec_size[x]);
-    }
+    }*/
     
 
     
@@ -593,9 +586,9 @@ int main (int argc,char *argv[]){
         for ( int n = 0 ; n < num; n++){
             if (result_word[n] == 0){
                 
-                printf("PAROLA: %s \n",tmp_word);
+                /*printf("PAROLA: %s \n",tmp_word);
                 printf("VALORE DA INCREMENTARE: %d \n", total_counters[count_parole]);
-                printf("COUNT PAROLE: %d \n",count_parole);
+                printf("COUNT PAROLE: %d \n",count_parole);*/
                 addOrIncrement(tmp_word,total_counters[count_parole]);
                 memset(tmp_word,0,100);
                 index_of_word_count = 0;
@@ -609,10 +602,6 @@ int main (int argc,char *argv[]){
         printf("\n \n \n \n");
         printf("--- NUM COUNT PARI A: %d ",num_count);
 
-        for ( int m = 0; m<num_count;m++){
-            printf("pos: %d has got this count: %d \n",m,total_counters[m]);
-        }
-
         
         printf("//////////////////////////////////// \n");
         printf("//////////////////////////////////// \n");
@@ -623,6 +612,19 @@ int main (int argc,char *argv[]){
             pCounter = pCounter -> pNext;
         }
         printf("\n \n \n");
+        
+
+        /*Writing the all words and their occurrence in the csv file*/
+        pCounter = pStart;
+        FILE *file;
+        file = fopen("result_word_count.csv","w+");
+        fprintf(file,"WordCount Procject 2020/2021 by Pisapia Gabriele");
+
+        while(pCounter != NULL){
+            fprintf(file,"%s,%d \n", giveWord(pCounter),giveCounter(pCounter));
+            pCounter = pCounter ->pNext;
+        }
+        fclose(file);
     }
     
   
