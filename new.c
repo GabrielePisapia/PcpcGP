@@ -618,7 +618,7 @@ int main (int argc,char *argv[]){
         pCounter = pStart;
         FILE *file;
         file = fopen("result_word_count.csv","w+");
-        fprintf(file,"WordCount Procject 2020/2021 by Pisapia Gabriele");
+        fprintf(file,"WordCount Procject 2020/2021 by Pisapia Gabriele \n");
 
         while(pCounter != NULL){
             fprintf(file,"%s,%d \n", giveWord(pCounter),giveCounter(pCounter));
