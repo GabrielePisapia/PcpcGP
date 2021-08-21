@@ -151,6 +151,7 @@ int main (int argc,char *argv[]){
     int rank,partition,remainder,in_word=0,how_much_file;
     int lowerbound =0 ,local_partition =0,word_count=0,local_wc=0; int readed_nd_word = 0;
     int num_car =0;
+    double timestart,timend;
     
 
        
@@ -169,12 +170,14 @@ int main (int argc,char *argv[]){
     int world_size,chunk,end,i,start =0,numberfile=0;
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank (MPI_COMM_WORLD,&rank);
+    MPI_Barrier(MPI_COMM_WORLD);
+    timestart = MPI_Wtime();
     int recv[world_size];
     int disp[world_size];
     int num_disp[world_size];
     int recvs_counts[world_size];
     
-
+  
        if (rank ==0){
            
             
@@ -322,13 +325,13 @@ int main (int argc,char *argv[]){
        }
 
         /*Displaying result of master*/
-
+/*
         pCounter = pStart;
         while(pCounter != NULL){
             show(pCounter,rank);
             pCounter = pCounter -> pNext;
         }
-        printf("\n \n \n");
+        printf("\n \n \n");*/
 
     }/* endif rank=0*/
 
@@ -473,12 +476,12 @@ int main (int argc,char *argv[]){
         //printf("Carattere: %c \n",exactly_word[0]);
 
         pCounter = pStart;
-        
+        /*
         while(pCounter != NULL){
             show(pCounter,rank);
             pCounter = pCounter -> pNext;
         }
-        printf("\n \n \n");
+        printf("\n \n \n");*/
 
         /* Free the memory that we allocated */
         pCounter = pStart;
@@ -538,9 +541,12 @@ int main (int argc,char *argv[]){
 
     MPI_Gatherv(exactly_word,num_car,MPI_CHAR,result_word,sec_size,disp,MPI_CHAR,0,MPI_COMM_WORLD);
     MPI_Gatherv(counters,readed_nd_word,MPI_INT,total_counters,sec_count_size,num_disp,MPI_INT,0,MPI_COMM_WORLD);
-    
+    MPI_Barrier(MPI_COMM_WORLD);
+    timend = MPI_Wtime();
 
     if(rank==0){
+        
+        
         pCounter = pStart;
         char array[num];
         char tmp_word[100];
@@ -563,13 +569,14 @@ int main (int argc,char *argv[]){
         }
 
         pCounter = pStart;
+        /*
         while(pCounter != NULL){
             show(pCounter,rank);
             pCounter = pCounter -> pNext;
         }
-        printf("\n \n \n");
+        printf("\n \n \n");*/
         
-
+        
         /*Writing the all words and their occurrence in the csv file*/
         pCounter = pStart;
         FILE *file;
@@ -581,6 +588,8 @@ int main (int argc,char *argv[]){
             pCounter = pCounter ->pNext;
         }
         fclose(file);
+        printf("%f \n ",timend-timestart);
+        fflush(stdout);
     }
     
   
