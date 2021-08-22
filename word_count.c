@@ -371,7 +371,7 @@ int main (int argc,char *argv[]){
            
             for(int tmp=0;tmp<sizeof(how_much_word)/sizeof(how_much_word[0]);tmp++){
                 cum_sum += how_much_word[tmp];
-                fflush(stdout);
+                
 
                 if((cum_sum > lowerbound) &&( partition > 0 )){
                     strcpy(path,"myfolder/");
