@@ -107,5 +107,128 @@ start = how_much_word[tmp] - (cum_sum-lowerbound);
         if (start < 0){
             start = 0;
         }
+
+    ...
+
+    while(partition != 0){
+    if (word_count > start){
+        /* perform word counting */
+    }
+
+    ...
+
+    }
 ```
 
+# LOCAL WORD COUNTING SOLUTION
+
+Whenever the end of a new word is reached, a temporary array containing the characters of that word is filled, so that it can be added to the linked list and then reset and re-used for the next word.
+
+```
+else{
+        if ((ch == ' ' || ch == '\t' || ch== '\n') && (in_word==1)){
+
+            /* We have reached the end of a word */
+
+            word_count++;
+            in_word=0;
+            if(word_count > start){
+                partition--;
+                tmpword[index_of_tmpword] ='\0';  // this contains the word to add 
+                index_of_tmpword++;
+                addWord(tmpword);  // add to the linked list
+                memset(tmpword,0,500);
+                index_of_tmpword = 0;
+                temp_to_send[while_counter] = 0;
+                while_counter++;
+                }
+            if(partition <=0){
+                break;
+                }
+        }
+} 
+```
+
+At this point, each process has generated its own local histogram and is ready to communicate the words and counts to the master.
+
+# COMMUNICATE THE RESULT TO THE MASTER
+
+The solution to this problem is very complex, since we know very well that within a communication with mpi, it is not possible to send pointers, because these would point to different memory locations for each processor. Therefore we need to find a way to communicate the data structure in a simple way.
+The approach I used is to put in a very large array the set of all detected words separated by the character \0. The same principle was applied for the counts in order to "synchronize" the two arrays in the master and to reconstruct the linked list.
+First of all we understand the size of the array containing all the words, to do this I counted the number of characters contained in the local linked list and I defined a variable useful for this purpose.
+
+```
+counters = malloc(sizeof(int)*readed_nd_word);  // array of the counters
+pCounter = pStart;
+    while(pCounter != NULL){
+        num_car += lengthOfCurrentWord(pCounter);
+        pCounter = pCounter -> pNext;
+    }
+
+    exactly_word = malloc(sizeof(char)*num_car);
+
+    /* fill the two arrays */
+    
+```
+
+Now we can start the communication with the master, for doing this I used a gatherv, before doing this we need some parameters for the gather, such as the displascment and the size of the size to send.
+
+```
+    for (int y = 0; y<world_size;y++){
+        
+        sec_count_size[y] = recvs_counts[y];
+        num_disp[y] = y == 0 ? 0: num_disp[y-1]+sec_count_size[y-1];
+        num_count += sec_count_size[y];
+        }
+        
+    for (int k = 0; k<world_size;k++){
+        
+        sec_size[k] = recv[k];
+        disp[k] = k == 0 ? 0: disp[k-1]+sec_size[k-1];
+        num += sec_size[k];
+        }
+        
+```
+
+N.B. the master does not participate in the calculation of displacment and size, so its parameters are set to 0.
+Let's start the communication:
+
+```
+MPI_Gatherv(exactly_word,num_car,MPI_CHAR,result_word,sec_size,disp,MPI_CHAR,0,MPI_COMM_WORLD);
+
+MPI_Gatherv(counters,readed_nd_word,MPI_INT,total_counters,sec_count_size,num_disp,MPI_INT,0,MPI_COMM_WORLD);
+```
+
+# MERGE THE RESULT INTO MASTER'S HISTOGRAM
+
+We have now in a one big array all the words derived from the other process, so we can loop and reconstruct the linked list.
+
+        for ( int n = 0 ; n < num; n++){
+            if (result_word[n] == 0){
+                addOrIncrement(tmp_word,total_counters[count_parole]);  // merge or insert the word
+                memset(tmp_word,0,100);
+                index_of_word_count = 0;
+                count_parole++;
+            }else{
+                tmp_word[index_of_word_count] = result_word[n];  // we copy character by character
+                index_of_word_count++;
+            }
+        }
+
+The addOrIncrement method takes in input the words and understands if the master has already that word and consequently it must sum its occurrence with that of the slave, taking the count from the array of counts. If it does not have that word it must add it without adding, but inserting as count the one detected locally by the slaves.
+
+# WRITING RESULT INTO THE CSV FILE
+
+At this point master has got a big linked list which contains all words and all counts, and can iterate through the list to write the results into the csv file.
+
+```
+pCounter = pStart;
+FILE *file;
+file = fopen("result_word_count.csv","w+");
+fprintf(file,"WordCount Procject 2020/2021 by Pisapia Gabriele \n");
+    while(pCounter != NULL){
+        fprintf(file,"%s,%d \n", giveWord(pCounter),giveCounter(pCounter));
+        pCounter = pCounter ->pNext;
+    }
+fclose(file);
+```
