@@ -253,7 +253,7 @@ To analyze the performance behavior of the program, I linearly increased the num
 
 ![alt text](https://github.com/GabrielePisapia/PcpcGP/blob/main/Benchmark/strong_sc.png?raw=true)
 
-As we can see from the graph, as the number of processors increases the execution time decreases, but this is true up to a certain point, in fact with 8 and 9 processors involved the time starts to decrease very slightly, while from 10 to 13 the time even starts to increase a little bit. This is because the parallel activity at a certain point can no longer compensate for the overhead spent in communication.
+As we can see from the graph, as the number of processors increases the execution time decreases, but this is true up to a certain point, in fact with 8 and 9 processors involved the time starts to decrease very slightly, while from 10 to 14 the time even starts to increase a little bit. This is because the parallel activity at a certain point can no longer compensate for the overhead spent in communication.
 
 **WEAK SCALABILITY**
 
