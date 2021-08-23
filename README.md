@@ -242,3 +242,5 @@ The tests were repeated several times and from the results produced, an average 
 
 A total of 100,000 words spread across multiple files was considered for strong scalability.
 To analyze the performance behavior of the program, I linearly increased the number of processors involved in the execution of the task.
+
+![alt text](https://github.com/GabrielePisapia/PcpcGP/blob/main/Benchmark/weak.png?raw=true)
