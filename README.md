@@ -243,7 +243,7 @@ The tests were repeated several times and from the results produced, an average 
 A total of 100,000 words spread across multiple files was considered for strong scalability.
 To analyze the performance behavior of the program, I linearly increased the number of processors involved in the execution of the task.
 
-![alt text](https://github.com/GabrielePisapia/PcpcGP/blob/main/Benchmark/weak.png?raw=true)
+![alt text](https://github.com/GabrielePisapia/PcpcGP/blob/main/Benchmark/strong.png?raw=true)
 
 As we can see from the graph, as the number of processors increases the execution time decreases, but this is true up to a certain point, in fact with 11,12,13,14 processors involved the time starts to decrease very slightly, while for 15 and 16 the time even starts to increase. This is because the parallel activity at a certain point can no longer compensate for the overhead spent in communication.
 
