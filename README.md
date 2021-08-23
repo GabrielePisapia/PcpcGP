@@ -282,6 +282,6 @@ For compile the program:
 mpicc word_count.c -o word_count.out
 
 For execute the program:
-mpirun -np X [--hostfile machinefile] ./word_count
+mpirun -np X [--hostfile yourhfile] ./word_count
 
 Where "X" stand for the number of process that you want to use for the execution.
