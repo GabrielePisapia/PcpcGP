@@ -250,3 +250,5 @@ As we can see from the graph, as the number of processors increases the executio
 **WEAK SCALABILITY**
 
 For weak scalability the input of the problem is increased proportionally to the number of processors involved, for these tests it was decided to make increments of twenty thousand words for processor.
+
+![alt text](https://github.com/GabrielePisapia/PcpcGP/blob/main/Benchmark/weak2.png?raw=true)
