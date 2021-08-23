@@ -244,3 +244,9 @@ A total of 100,000 words spread across multiple files was considered for strong 
 To analyze the performance behavior of the program, I linearly increased the number of processors involved in the execution of the task.
 
 ![alt text](https://github.com/GabrielePisapia/PcpcGP/blob/main/Benchmark/weak.png?raw=true)
+
+As we can see from the graph, as the number of processors increases the execution time decreases, but this is true up to a certain point, in fact with 11,12,13,14 processors involved the time starts to decrease very slightly, while for 15 and 16 the time even starts to increase. This is because the parallel activity at a certain point can no longer compensate for the overhead spent in communication.
+
+**WEAK SCALABILITY**
+
+For weak scalability the input of the problem is increased proportionally to the number of processors involved, for these tests it was decided to make increments of twenty thousand words for processor.
