@@ -267,7 +267,7 @@ From the graph below we can see that the real execution times do not respect the
 
 # EXECUTION INSTRUCTION
 
-⚠️ **For run the program the folder "myfolder" should stay in the same directory where the .c file is, follow the instructions to achieve proper file placement**
+⚠️ **For run the program the folder "myfolder" should stay in the same directory where the .c file is, follow the instructions to achieve proper file placement.**
 
 
     📁 Project
