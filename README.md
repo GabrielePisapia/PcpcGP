@@ -232,3 +232,13 @@ fprintf(file,"WordCount Procject 2020/2021 by Pisapia Gabriele \n");
     }
 fclose(file);
 ```
+
+# BENCHMARKING
+
+The proposed solution was tested on a cluster of aws EC2 t2.2xlarge machines with the following features: 8 vCPU and 32Gb of RAM. The benchmarking metrics have been obtained considering the concepts of weak and strong scalability.
+The tests were repeated several times and from the results produced, an average calculation was performed, to define a more or less accurate value for the specific test case.
+
+**STRONG SCALABILITY**
+
+A total of 100,000 words spread across multiple files was considered for strong scalability.
+To analyze the performance behavior of the program, I linearly increased the number of processors involved in the execution of the task.
