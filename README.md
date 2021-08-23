@@ -238,6 +238,14 @@ fclose(file);
 The proposed solution was tested on a cluster of aws EC2 t2.2xlarge machines with the following features: 8 vCPU and 32Gb of RAM. The benchmarking metrics have been obtained considering the concepts of weak and strong scalability.
 The tests were repeated several times and from the results produced, an average calculation was performed, to define a more or less accurate value for the specific test case.
 
+ ⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️
+
+**IMPORTANT: The graphs below are shown avoiding considering the integer part of the execution time, which remains 0 for all test cases!!!**
+
+⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️
+
+
+
 **STRONG SCALABILITY**
 
 A total of 100,000 words spread across multiple files was considered for strong scalability.
@@ -252,3 +260,28 @@ As we can see from the graph, as the number of processors increases the executio
 For weak scalability the input of the problem is increased proportionally to the number of processors involved, for these tests it was decided to make increments of twenty thousand words for processor.
 
 ![alt text](https://github.com/GabrielePisapia/PcpcGP/blob/main/Benchmark/weak2.png?raw=true)
+
+From the graph below we can see that the real execution times do not respect the expected behavior, in fact the execution time tends to increase, while the behavior should not vary much. Also here the overhead factor comes into play and this leads us to a conclusion that the execution time increases as the number of processors involved increases.
+
+
+
+# EXECUTION INSTRUCTION
+
+⚠️ **For run the program the folder "myfolder" should stay in the same directory where the .c file is, follow the instructions to achieve proper file placement**
+
+
+    📁 Project
+        📝 word_count.c
+
+        📁 myfolder
+            📝 file1.txt
+            📝 file2.txt
+            ....
+
+For compile the program:
+mpicc word_count.c -o word_count.out
+
+For execute the program:
+mpirun -np X [--hostfile machinefile] ./word_count
+
+Where "X" stand for the number of process that you want to use for the execution.
